@@ -72,4 +72,5 @@ UserSchema.methods.toAuthJSON = function () {
     };
 };
 
+// *** --- export user schema to use in controller ---
 module.exports = mongoose.model('UserSchema', UserSchema);

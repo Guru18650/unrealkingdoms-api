@@ -11,7 +11,7 @@ const UserInfoSchema = new mongoose.Schema(
     {
         userid: { type: Number, min: 0, max: 9999 },
         race: { type: String },
-        class: { type: String },
+        classe: { type: String },
         gender: { type: String }
 
         // maybe a few more in the later
@@ -34,3 +34,6 @@ UserInfoSchema.methods.toUserInfoJSON = function () {
         gender: this.gender,
     };
 };
+
+// *** --- export user info schema to use in controller ---
+module.exports = mongoose.model('UserInfoSchema', UserInfoSchema);
