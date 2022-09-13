@@ -9,10 +9,18 @@ const uniqueValidator = require("mongoose-unique-validator");
 // *** --- define user info schema  --- 
 const UserInfoSchema = new mongoose.Schema(
     {
-        userid: { type: Number, min: 0, max: 9999 },
-        race: { type: String },
-        classe: { type: String },
-        gender: { type: String }
+        race: {
+            type: Number,
+            default: 0,
+        },
+        gender: {
+            type: Number,
+            default: 0,
+        },
+        classe: {
+            type: Number,
+            default: 0,
+        },
 
         // maybe a few more in the later
     },

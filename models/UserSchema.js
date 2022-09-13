@@ -5,13 +5,13 @@
 // *** --- initialize variables --- 
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
+const crypto = require('crypto');
 const jwt = require("jsonwebtoken");
 require("dotenv/config");
 
 // *** --- define user schema  --- 
 const UserSchema = new mongoose.Schema(
     {
-        userid: { type: Number, min: 0, max: 9999 },
         name: { type: String },
         email: {
             type: String,
@@ -21,16 +21,12 @@ const UserSchema = new mongoose.Schema(
             match: [/\S+@\S+\.\S+/, "is invalid"],
             index: true,
         },
-        password: { type: String, required: true },
         salt: { type: String },
         hash: { type: String },
-        createdate: {
-            type: Date, default: Date.now
-        },
         lastlogindate: {
             type: Date, default: Date.now
         },
-        lastloginip: { type: String }
+        lastloginip: { type: String, default: "0.0.0.0" }
     },
     {
         timestamps: true,
@@ -58,11 +54,22 @@ UserSchema.methods.generateJWT = function () {
     );
 };
 
+// *** --- password validation ---
+UserSchema.methods.validPassword = function (password) {
+    const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
+    return this.hash === hash;
+};
+
+// *** --- store password ---
+UserSchema.methods.setPassword = function (password) {
+    this.salt = crypto.randomBytes(16).toString('hex');
+    this.hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
+};
+
 // *** --- call back function when auth information required, retrieve user information in json  ---
 UserSchema.methods.toAuthJSON = function () {
     return {
         uid: this._id,
-        userid: this.userid,
         name: this.name,
         email: this.email,
         createdate: this.createdate,

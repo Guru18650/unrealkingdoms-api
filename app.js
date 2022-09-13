@@ -21,11 +21,18 @@ const cors = require("cors");
 // *** --- implement middleware ---
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const passport = require('passport');
+
+// *** --- include database models ---
+require("dotenv/config");
+require("./models/UserSchema");
+require("./models/UserInfoSchema");
+require('./config/passport');
 
 // *** --- implement cors ---
 app.use(cors());
 
-// *** --- express configuration ---
+// *** --- middleware configuration ---
 app.use(require("morgan")("dev"));
 app.use(
     bodyParser.urlencoded({
@@ -37,7 +44,7 @@ app.use(require("method-override")());
 app.use(
     // set session for API request
     session({
-        secret: "cayc_unrealkingdom",
+        secret: process.env.SECRET,
         cookie: {
             maxAge: 60000,
         },
@@ -45,11 +52,8 @@ app.use(
         saveUninitialized: false,
     })
 );
-
-// *** --- include database models ---
-require("dotenv/config");
-require("./models/UserSchema");
-require("./models/UserInfoSchema");
+app.use(passport.initialize());
+app.use(passport.session());
 
 // *** --- import API routes ---
 app.use(require("./routes"));
