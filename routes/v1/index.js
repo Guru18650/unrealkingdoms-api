@@ -7,6 +7,7 @@ const router = require('express').Router();
 
 // *** --- add all endpoints --- 
 router.use('/', require('./user'));
+router.use('/', require('./character'));
 
 router.use(function (err, req, res, next) {
     // validations for API request
