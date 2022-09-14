@@ -6,9 +6,12 @@
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
-// *** --- define user info schema  --- 
-const UserInfoSchema = new mongoose.Schema(
+// *** --- define character schema  --- 
+const CharacterSchema = new mongoose.Schema(
     {
+        userid: {
+            type: String
+        },
         race: {
             type: Number,
             default: 0,
@@ -30,10 +33,10 @@ const UserInfoSchema = new mongoose.Schema(
 );
 
 // *** --- setup user info model validator  ---
-UserInfoSchema.plugin(uniqueValidator, { message: "is already taken" });
+CharacterSchema.plugin(uniqueValidator, { message: "is already taken" });
 
 // *** --- call back function when user info required, retrieve user type in json  ---
-UserInfoSchema.methods.toUserInfoJSON = function () {
+CharacterSchema.methods.toCharacterJSON = function () {
     return {
         uid: this._id,
         userid: this.userid,
@@ -44,4 +47,4 @@ UserInfoSchema.methods.toUserInfoJSON = function () {
 };
 
 // *** --- export user info schema to use in controller ---
-module.exports = mongoose.model('UserInfoSchema', UserInfoSchema);
+module.exports = mongoose.model('CharacterSchema', CharacterSchema);
