@@ -84,7 +84,6 @@ router.post("/getCharacters", async function (req, res, next) {
 
     // get all characters belong to user if it is existing
     if (user) {
-
         // find all character informations belong to specific user id
         CharacterSchema.find({ userid: userid }).sort({
             createdAt: -1,

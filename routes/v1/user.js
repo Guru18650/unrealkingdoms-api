@@ -9,6 +9,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const UserSchema = mongoose.model("UserSchema");
+const axios = require('axios').default;
 
 require("dotenv/config");
 
@@ -107,7 +108,7 @@ router.post('/forgetpassword', async function (req, res, next) {
         const exp = new Date(today);
         exp.setMinutes(today.getMinutes() + 300);
 
-        //generate 4 digits and sign jwt
+        // generate 4 digits and sign jwt
         const randomMsg = Math.floor(1000 + Math.random() * 9000);
         const token = jwt.sign(
             {
@@ -117,9 +118,25 @@ router.post('/forgetpassword', async function (req, res, next) {
             },
             process.env.SECRET
         );
-        return res.status(200).json({
-            token,
-            msg: 'verification email sent',
+
+        // send support email to user by delivery service
+        axios.post(process.env.SMTP_URL, {
+            authuser: process.env.SMTP_USER,
+            authpass: process.env.SMTP_PASSWORD,
+            from: process.env.SMTP_USER,
+            to: user.email,
+            subject: 'Unreal Kingdom Support',
+            content: randomMsg
+        }).then((response) => {
+            return res.status(200).json({
+                msg: "Verification email sent",
+                mid: response.data.mid,
+                token: token
+            });
+        }).catch(function (err) {
+            return res.status(400).json({
+                msg: 'validation error - try another information',
+            });
         });
     } else {
         return res.status(404).json({
@@ -131,44 +148,52 @@ router.post('/forgetpassword', async function (req, res, next) {
 // *** --- verify forget password request ---
 router.post('/verifyforget', async function (req, res) {
     const { token, digits, newPassword } = req.body;
+    // check if request body is valid
     if (!token || !digits || !newPassword) {
-        const { msg, email } = jwt.verify(token, process.env.SECRET);
-
-        // if decoded 4-digits are same from backend request
-        if (digits === msg) {
-            const user = await UserSchema.findOne({
-                email: email,
-            });
-
-            // find if user is available in the database
-            if (user) {
-                user.setPassword(newPassword);
-                user.save()
-                    .then(function () {
-                        return res.status(200).json({
-                            msg: 'successfully reset password',
+        return res.status(400).json({
+            msg: "validation error - try another information",
+        });
+    } else {
+        try {
+            // decode 4-digits and request email from token
+            const { msg, email } = jwt.verify(token, process.env.SECRET);
+            // if decoded 4-digits are same from backend request
+            if (digits == msg) {
+                // check if email from request body is existing
+                const user = await UserSchema.findOne({
+                    email: email,
+                });
+                // find if user is available in the database
+                if (user) {
+                    user.setPassword(newPassword);
+                    user.save()
+                        .then(function () {
+                            return res.status(200).json({
+                                msg: 'successfully reset password',
+                            });
+                        })
+                        .catch(function (err) {
+                            return res.status(400).json({
+                                msg: 'validation error - try another information',
+                            });
                         });
-                    })
-                    .catch(function (err) {
-                        return res.status(400).json({
-                            msg: 'validation error - try another information',
-                        });
+                } else {
+                    return res.status(404).json({
+                        msg: 'user is not registered',
                     });
+                }
             } else {
-                return res.status(404).json({
-                    msg: 'user is not registered',
+                // when 4-digits are wrong
+                return res.status(401).json({
+                    msg: 'wrong digits code',
                 });
             }
-        } else {
-            // when 4-digits are wrong
+        } catch (err) {
+            // when token is invalid
             return res.status(401).json({
-                msg: 'wrong digits code',
+                msg: 'wrong token information',
             });
         }
-    } else {
-        return res.status(400).json({
-            msg: "can't be blank",
-        });
     }
 
 });
