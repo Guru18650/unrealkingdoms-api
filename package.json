@@ -37,10 +37,12 @@
     "moment": "^2.26.0",
     "mongoose": "^5.9.4",
     "mongoose-unique-validator": "^2.0.3",
+    "moralis": "^2.4.0",
     "morgan": "^1.9.1",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
-    "uuid": "^7.0.2"
+    "uuid": "^7.0.2",
+    "wallet-address-validator": "^0.2.4"
   },
   "devDependencies": {
     "eslint": "^7.0.0",

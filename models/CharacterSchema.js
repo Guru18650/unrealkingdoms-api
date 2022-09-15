@@ -35,7 +35,7 @@ const CharacterSchema = new mongoose.Schema(
 // *** --- setup user info model validator  ---
 CharacterSchema.plugin(uniqueValidator, { message: "is already taken" });
 
-// *** --- call back function when user info required, retrieve user type in json  ---
+// *** --- response function when user info required, retrieve user type in json ---
 CharacterSchema.methods.toCharacterJSON = function () {
     return {
         uid: this._id,

@@ -66,7 +66,7 @@ UserSchema.methods.setPassword = function (password) {
     this.hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
 };
 
-// *** --- call back function when auth information required, retrieve user information in json  ---
+// *** --- response function when auth information required, retrieve user information in json ---
 UserSchema.methods.toAuthJSON = function () {
     return {
         uid: this._id,

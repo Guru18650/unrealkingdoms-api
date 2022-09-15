@@ -27,6 +27,7 @@ const passport = require('passport');
 require("dotenv/config");
 require("./models/UserSchema");
 require("./models/CharacterSchema");
+require("./models/WalletSchema");
 require('./config/passport');
 
 // *** --- implement cors ---
