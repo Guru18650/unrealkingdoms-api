@@ -28,6 +28,7 @@ require("dotenv/config");
 require("./models/UserSchema");
 require("./models/CharacterSchema");
 require("./models/WalletSchema");
+require("./models/NFTSchema");
 require('./config/passport');
 
 // *** --- implement cors ---

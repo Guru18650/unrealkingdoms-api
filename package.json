@@ -18,6 +18,9 @@
   },
   "homepage": "https://cayc.io/",
   "dependencies": {
+    "@moralisweb3/core": "^2.4.0",
+    "@moralisweb3/evm-api": "^2.4.0",
+    "@moralisweb3/evm-utils": "^2.4.0",
     "axios": "^0.27.2",
     "body-parser": "^1.19.0",
     "connect": "^3.7.0",
