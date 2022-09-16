@@ -10,6 +10,7 @@ const router = require("express").Router();
 const auth = require('../middleware/auth');
 const UserSchema = mongoose.model("UserSchema");
 const WalletSchema = mongoose.model("WalletSchema");
+const NFTSchema = mongoose.model("NFTSchema");
 const ObjectID = require('mongodb').ObjectId;
 const WAValidator = require('wallet-address-validator');
 
@@ -59,6 +60,90 @@ router.post("/updateuserwallet", async function (req, res, next) {
     }
 })
 
+// *** --- add valid NFTs to the database ---
+router.post("/updatenftinfo", async function (req, res, next) {
+
+    const { token_address, token_id, amount, owner_of, token_hash, contract_type, name, symbol, token_uri } = req.body;
+
+    // check if request body is empty
+    if (!token_address || !token_id || !amount || !owner_of || !token_hash || !contract_type || !name ||
+        !symbol || !token_uri || !WAValidator.validate(token_address, "ethereum") || !WAValidator.validate(owner_of, "ethereum")) {
+        return res.status(400).json({
+            msg: "validation error - try another information",
+        });
+    }
+
+    // retrieve nft information token_address
+    let nft = await NFTSchema.findOne({ token_address: token_address });
+
+    // create or update nft information 
+    if (nft) {
+        // update existing db field with new information
+        nft.token_id = token_id;
+        nft.amount = amount;
+        nft.owner_of = owner_of;
+        nft.token_hash = token_hash;
+        nft.contract_type = contract_type;
+        nft.name = "trying for a new new new new opportunity";
+        nft.symbol = symbol;
+        nft.token_uri = token_uri;
+
+        // store db field with updated information
+        await nft.save();
+
+        return res.status(200).json({
+            msg: "successfully update NFT information to the db",
+        })
+    } else {
+        // create new db field by request information
+        const newNft = new NFTSchema({
+            token_address: token_address, token_id: token_id, amount: amount, owner_of: owner_of, token_hash: token_hash,
+            contract_type: contract_type,
+            name: name,
+            symbol: symbol,
+            token_uri: token_uri
+        });
+
+        // add db field with new NFT information
+        await newNft.save();
+
+        return res.status(200).json({
+            msg: "successfully add new NFT information to the db",
+        })
+    }
+})
+
+// *** --- remove NFT info from the database ---
+router.post("/removenftinfo", async function (req, res, next) {
+
+    const { token_address } = req.body;
+
+    // check if request body is empty
+    if (!token_address) {
+        return res.status(400).json({
+            msg: "validation error - try another information",
+        });
+    }
+
+    // retrieve nft information token_address
+    const nft = await NFTSchema.findOne({ token_address: token_address });
+
+    // remove nft information from db if existing
+    if (nft) {
+
+        await NFTSchema.deleteOne({ token_address: token_address });
+
+        return res.status(200).json({
+            msg: "successfully remove NFT from database",
+        })
+    } else {
+        // retrieve message when nft is not existing
+        return res.status(403).json({
+            msg: "nft is not exisiting",
+        });
+    }
+})
+
 // *** --- get all available nfts from user wallet ---
 router.post("/getallnfts", async function (req, res, next) {
 
@@ -91,7 +176,7 @@ router.post("/getallnfts", async function (req, res, next) {
 
             // retrieve all NFTS of the user wallet
             return res.status(200).json({
-                msg: "successfully fetch " + response.data.total + " NFTs from" + address,
+                msg: "successfully fetch " + response.data.total + " NFTs from " + address,
                 result: response.data.result
             })
         } else {

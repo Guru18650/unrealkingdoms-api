@@ -23,6 +23,8 @@ const WalletSchema = new mongoose.Schema(
             required: true,
             default: "0x000000000000000000000000000000000000dEaD"
         }
+
+        // need to make sure if we add signature later
     },
     {
         timestamps: true,

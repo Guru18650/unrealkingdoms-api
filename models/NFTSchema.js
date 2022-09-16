@@ -8,24 +8,31 @@ const uniqueValidator = require("mongoose-unique-validator");
 require("dotenv/config");
 
 // *** --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- 
-// *** --- NFT Schema : One wallet can have multiple NFTs ---
+// *** --- NFT Schema : Designed to store multiple NFTs for project ---
 // *** --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- 
 
 // *** --- define nft schema  --- 
 const NFTSchema = new mongoose.Schema(
     {
-        wallet: {
+        token_address: {
             type: String,
             lowercase: true,
             required: true,
             default: "0x000000000000000000000000000000000000dEaD"
         },
-        nftcontract: {
-            type: String,
-            lowercase: true,
+        token_id: { type: String, required: true },
+        amount: { type: Number },
+        owner_of: {
+            type: String, lowercase: true,
             required: true,
             default: "0x000000000000000000000000000000000000dEaD"
-        }
+        },
+        token_hash: { type: String, required: true },
+        contract_type: { type: String, required: true },
+        name: { type: String, required: true },
+        symbol: { type: String, required: true },
+        token_uri: { type: String, required: true },
+        admin: { type: Boolean, default: true },
     },
     {
         timestamps: true,
@@ -39,8 +46,16 @@ NFTSchema.plugin(uniqueValidator, { message: "is already taken" });
 NFTSchema.methods.toNFTJSON = function () {
     return {
         uid: this._id,
-        wallet: this.wallet,
-        nftcontract: this.nftcontract,
+        token_address: this.token_address,
+        token_id: this.token_id,
+        amount: this.amount,
+        owner_of: this.owner_of,
+        token_hash: this.token_hash,
+        contract_type: this.contract_type,
+        name: this.name,
+        symbol: this.symbol,
+        token_uri: this.token_uri,
+        admin: this.admin,
     };
 };
 
